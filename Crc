@@ -1,0 +1,45 @@
+def calculate_crc(message_bits, generator_bits):
+    """
+    Function to calculate the CRC checksum
+    """
+    data = message_bits + [0] * (len(generator_bits) - 1)
+    divisor = generator_bits[:]
+    n = len(generator_bits)
+
+    for i in range(len(message_bits)):
+        if data[i] == 1:  # Only perform XOR when MSB is 1
+            for j in range(n):
+                data[i + j] ^= divisor[j]
+    
+    # Remainder becomes the checksum
+    return data[len(message_bits):]
+
+
+def main():
+    print("Enter message bits:")
+    message_bits = list(map(int, input().strip()))
+    
+    print("Enter generator bits:")
+    generator_bits = list(map(int, input().strip()))
+    
+    # Calculate the checksum
+    checksum = calculate_crc(message_bits, generator_bits)
+    
+    # Append the checksum to the original message bits
+    codeword = message_bits + checksum
+    
+    print("\nThe checksum code is:", ''.join(map(str, checksum)))
+    print("The codeword is:", ''.join(map(str, codeword)))
+    
+    # Verify the codeword
+    remainder = calculate_crc(codeword, generator_bits)
+    print("\nRemainder after decoding:", ''.join(map(str, remainder)))
+    
+    if any(remainder):
+        print("Data stream is invalid (CRC error occurred).")
+    else:
+        print("Data stream is valid.")
+
+
+if __name__ == "__main__":
+    main()
