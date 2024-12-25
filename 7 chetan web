@@ -1,0 +1,91 @@
+<!DOCTYPE html> 
+<html lang="en"> 
+<head> 
+  <meta charset="UTF-8"> 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+  <title>Multi Converter Tool</title> 
+  <style> 
+    body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; } 
+    .container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 
+4px 8px rgba(0, 0, 0, 0.1); } 
+    textarea, input, button { width: 100%; margin: 10px 0; padding: 10px; border-radius: 5px; } 
+    button { background: #007BFF; color: #fff; border: none; cursor: pointer; } 
+    button:hover { background: #0056b3; } 
+    .output { padding: 10px; background: #e9ecef; border-radius: 5px; white-space: pre-wrap; } 
+  </style> 
+</head> 
+<body> 
+  <div class="container"> 
+    <h1>Multi Converter Tool</h1> 
+ 
+    <h3>JSON to JavaScript Object</h3> 
+    <textarea id="jsonToObjectInput" placeholder="Enter JSON"></textarea> 
+    <button onclick="convertJSONToObject()">Convert JSON</button> 
+    <div id="jsonToObjectOutput" class="output"></div> 
+ 
+    <h3>Convert JSON Dates</h3> 
+    <textarea id="jsonDateInput" placeholder='Enter JSON with dates'></textarea> 
+    <button onclick="convertJSONDates()">Convert Dates</button> 
+    <div id="jsonDateOutput" class="output"></div> 
+ 
+    <h3>JSON & CSV Converter</h3> 
+    <textarea id="jsonCsvInput" placeholder="Enter JSON or CSV"></textarea> 
+    <button onclick="convertToCSV()">To CSV</button> 
+    <button onclick="convertToJSON()">To JSON</button> 
+    <div id="jsonCsvOutput" class="output"></div> 
+ 
+    <h3>String to Hash</h3> 
+    <input type="text" id="stringToHashInput" placeholder="Enter string"> 
+    <button onclick="generateHash()">Generate Hash</button> 
+    <textarea id="stringToHashOutput" class="output" readonly></textarea> 
+  </div> 
+ 
+  <script> 
+    const getElem = id => document.getElementById(id); 
+ 
+    function convertJSONToObject() { 
+      try { getElem('jsonToObjectOutput').innerText = JSON.stringify(JSON.parse(getElem('jsonToObjectInput').value), 
+null, 2); } 
+      catch (err) { getElem('jsonToObjectOutput').innerText = `Invalid JSON: ${err.message}`; } 
+    } 
+ 
+    function convertJSONDates() { 
+      try { 
+        const obj = JSON.parse(getElem('jsonDateInput').value); 
+        Object.keys(obj).forEach(key => obj[key] = isNaN(new Date(obj[key])) ? obj[key] : new 
+Date(obj[key]).toLocaleString()); 
+        getElem('jsonDateOutput').innerText = JSON.stringify(obj, null, 2); 
+      } catch (err) { 
+        getElem('jsonDateOutput').innerText = `Invalid JSON: ${err.message}`; 
+      } 
+    } 
+ 
+    function convertToCSV() { 
+      try { 
+        const json = JSON.parse(getElem('jsonCsvInput').value); 
+        const keys = Object.keys(json[0]); 
+        const csv = keys.join(",") + "\n" + json.map(row => keys.map(k => row[k]).join(",")).join("\n"); 
+        getElem('jsonCsvOutput').innerText = csv; 
+      } catch { getElem('jsonCsvOutput').innerText = "Invalid JSON!"; } 
+    } 
+ 
+    function convertToJSON() { 
+      try { 
+        const lines = getElem('jsonCsvInput').value.split("\n"); 
+        const [headers, ...rows] = lines.map(line => line.split(",")); 
+        const json = rows.map(row => Object.fromEntries(headers.map((h, i) => [h, row[i]]))); 
+        getElem('jsonCsvOutput').innerText = JSON.stringify(json, null, 2); 
+      } catch { getElem('jsonCsvOutput').innerText = "Invalid CSV!"; } 
+    } 
+ 
+    async function generateHash() { 
+      const input = getElem('stringToHashInput').value; 
+      if (!input) return alert('Enter a string!'); 
+      const hash = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new 
+TextEncoder().encode(input)))) 
+                      .map(b => b.toString(16).padStart(2, '0')).join(''); 
+      getElem('stringToHashOutput').value = hash; 
+    } 
+  </script> 
+</body> 
+</html>
