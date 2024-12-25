@@ -1,0 +1,41 @@
+<!DOCTYPE html> 
+<html lang="en"> 
+<head> 
+    <meta charset="UTF-8"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <title>jQuery Demo</title> 
+    <style> 
+        body { font-family: Arial, sans-serif; margin: 20px; } 
+        .box { width: 100px; height: 100px; background: blue; color: white; display: flex; align-items: center; justify
+content: center; margin-top: 20px; border-radius: 10px; } 
+        button { margin: 10px; padding: 10px; cursor: pointer; } 
+    </style> 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> 
+    <script> 
+        $(function () { 
+            $('#appendContent').click(() => { 
+                $('#paragraph').append(' This content is appended.'); 
+                $('#list').append('<li>New Item</li>'); 
+            }); 
+ 
+            $('#animateElement').click(() => { 
+                $('#box').animate({ width: '200px', height: '200px', marginLeft: '50px' }, 1000, function () { 
+                    $(this).css('background', 'red'); 
+                }); 
+            }); 
+        }); 
+    </script> 
+</head> 
+<body> 
+    <h1>jQuery Demo</h1> 
+    <p id="paragraph">This is an example paragraph.</p> 
+    <ul id="list"> 
+        <li>Item 1</li> 
+        <li>Item 2</li> 
+        <li>Item 3</li> 
+    </ul> 
+    <div id="box" class="box">Animate Me</div> 
+    <button id="appendContent">Append Content</button> 
+    <button id="animateElement">Animate Element</button> 
+</body> 
+</html>
