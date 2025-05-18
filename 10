@@ -1,183 +1,57 @@
-.txt file
-hi this is example text...
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.datasets import load_breast_cancer
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+from sklearn.metrics import confusion_matrix, classification_report
 
-data.josn
-{"name":"John Doe","age":30,"city":"New York","skills":["JavaScript","React","Node.js"],"address":{"street":"123 Elm Street","zipcode":"10001"},"projects":[{"name":"Website Redesign","year":2023,"technologies":["HTML","CSS","JavaScript"]},{"name":"Mobile App","year":2024,"technologies":["React Native","Expo"]}]}
+data = load_breast_cancer()
+X = data.data
+y = data.target
 
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
 
-html
+kmeans = KMeans(n_clusters=2, random_state=42)
+y_kmeans = kmeans.fit_predict(X_scaled)
 
-<!DOCTYPE html>
+print("Confusion Matrix:")
+print(confusion_matrix(y, y_kmeans))
+print("\nClassification Report:")
+print(classification_report(y, y_kmeans))
 
-<head>
-    <title>AJAX Examples | vtucode</title>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f9;
-        }
+pca = PCA(n_components=2)
+X_pca = pca.fit_transform(X_scaled)
 
-        h1 {
-            text-align: center;
-            color: #333;
-            padding: 20px 0;
-        }
+df = pd.DataFrame(X_pca, columns=['PC1', 'PC2'])
+df['Cluster'] = y_kmeans
+df['True Label'] = y
 
-        #content {
-            flex-direction: column;
-            display: flex;
-            max-width: 600px;
-            margin: 20px auto;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            background-color: #fff;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
+plt.figure(figsize=(8, 6))
+sns.scatterplot(data=df, x='PC1', y='PC2', hue='Cluster', palette='Set1', s=100, edgecolor='black', alpha=0.7)
+plt.title('K-Means Clustering of Breast Cancer Dataset')
+plt.xlabel('Principal Component 1')
+plt.ylabel('Principal Component 2')
+plt.legend(title="Cluster")
+plt.show()
 
-        button {
-            display: inline-block;
-            padding: 10px 15px;
-            margin: 12px;
-            border: none;
-            border-radius: 5px;
-            background-color: #007bff;
-            color: #fff;
-            font-size: 16px;
-            cursor: pointer;
-            transition: box-shadow 0.3s;
-        }
+plt.figure(figsize=(8, 6))
+sns.scatterplot(data=df, x='PC1', y='PC2', hue='True Label', palette='coolwarm', s=100, edgecolor='black', alpha=0.7)
+plt.title('True Labels of Breast Cancer Dataset')
+plt.xlabel('Principal Component 1')
+plt.ylabel('Principal Component 2')
+plt.legend(title="True Label")
+plt.show()
 
-        button:hover {
-            box-shadow: 0 0 0 2px #fff, 0 0 0 4px #007bff;
-        }
-
-        button:focus {
-            box-shadow: 0 0 0 2px #fff, 0 0 0 4px #007bff;
-        }
-
-
-        #output {
-            display: none;
-            margin-top: 20px;
-            padding: 10px;
-            border-radius: 5px;
-            white-space: pre-wrap;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
-        #output.plain-ajax {
-            background-color: #f0f8ff;
-            border: 1px solid #b0c4de;
-        }
-
-        #output.jquery-ajax {
-            background-color: #f5fffa;
-            border: 1px solid #98fb98;
-        }
-
-        #output.jquery-json {
-            background-color: #fffaf0;
-            border: 1px solid #ffd700;
-        }
-
-        #output.parse-json {
-            background-color: #fff0f5;
-            border: 1px solid #ff69b4;
-        }
-    </style>
-</head>
-
-<body>
-    <h1>AJAX Examples</h1>
-    <div id="content">
-        <button id="plain-ajax-btn">Load Text (Plain AJAX)</button>
-        <button id="jquery-ajax-btn">Load Text (jQuery AJAX)</button>
-        <button id="jquery-json-btn">Load JSON (jQuery getJSON)</button>
-        <button id="parse-json-btn">Load and Parse JSON (jQuery get)</button>
-        <div id="output"></div>
-    </div>
-
-    <script>
-
-        function showOutput(className) {
-            const output = document.getElementById('output');
-            output.className = className;
-            output.style.display = 'block';
-        }
-
-        document.getElementById('plain-ajax-btn').addEventListener('click', function () {
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', 'textfile.txt', true);
-            xhr.onload = function () {
-                if (xhr.status === 200) {
-                    document.getElementById('output').innerText = xhr.responseText;
-                } else {
-                    document.getElementById('output').innerText = 'Error loading file.';
-                }
-                showOutput('plain-ajax');
-            };
-            xhr.send();
-        });
-
-        $('#jquery-ajax-btn').on('click', function () {
-            $.ajax({
-                url: 'textfile.txt',
-                method: 'GET',
-                success: function (data) {
-                    $('#output').text(data);
-                },
-                error: function () {
-                    $('#output').text('Error loading file.');
-                }
-            }).always(function () {
-                showOutput('jquery-ajax');
-            });
-        });
-
-
-        $('#jquery-json-btn').on('click', function () {
-            $.getJSON('data.json')
-                .done(function (data) {
-                    $('#output').text(JSON.stringify(data, null, 2));
-                })
-                .fail(function () {
-                    $('#output').text('Error loading JSON file.');
-                })
-                .always(function () {
-                    showOutput('jquery-json');
-                });
-        });
-
-
-        $('#parse-json-btn').on('click', function () {
-            $.get('data.json')
-                .done(function (data) {
-                    try {
-                        let jsonData;
-                        
-                        if (typeof data === 'string') {
-                            jsonData = JSON.parse(data);
-                        } else {
-                            jsonData = data;
-                        }
-                        $('#output').text(JSON.stringify(jsonData, null, 2));
-                    } catch (e) {
-                        $('#output').text('Error parsing JSON: ' + e.message);
-                    }
-                })
-                .fail(function () {
-                    $('#output').text('Error loading JSON file.');
-                })
-                .always(function () {
-                    showOutput('parse-json');
-                });
-        });
-    </script>
-</body>
-
-</html>
+plt.figure(figsize=(8, 6))
+sns.scatterplot(data=df, x='PC1', y='PC2', hue='Cluster', palette='Set1', s=100, edgecolor='black', alpha=0.7)
+centers = pca.transform(kmeans.cluster_centers_)
+plt.scatter(centers[:, 0], centers[:, 1], s=200, c='red', marker='X', label='Centroids')
+plt.title('K-Means Clustering with Centroids')
+plt.xlabel('Principal Component 1')
+plt.ylabel('Principal Component 2')
+plt.legend(title="Cluster")
+plt.show()
